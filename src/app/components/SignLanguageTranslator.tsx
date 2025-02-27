@@ -182,6 +182,7 @@ const SignLanguageTranslator = () => {
             Handsigns.xSign,
             Handsigns.ySign,
             Handsigns.zSign,
+            Handsigns.insertSign,
           ]);
     
           const estimatedGestures = await GE.estimate(hand[0].landmarks, 6.5);

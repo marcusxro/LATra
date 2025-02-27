@@ -79,6 +79,7 @@ export const Signimage: any = {
   X: X_sign,
   Y: Y_sign,
   Z: Z_sign,
+  Insert: Z_sign,
 }
 
 export const Signpass: any = [
@@ -185,5 +186,9 @@ export const Signpass: any = [
   {
     src: Z_hand,
     alt: "Z",
+  },
+  {
+    src: Z_hand,
+    alt: "Insert",
   },
 ]
