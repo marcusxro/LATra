@@ -1,6 +1,6 @@
 import { Finger, FingerCurl, FingerDirection, GestureDescription } from 'fingerpose';
 
-export const insertSign = new GestureDescription('Insert');
+export const insertSign = new GestureDescription('Space');
 
 // Thumb
 insertSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 1.0);
