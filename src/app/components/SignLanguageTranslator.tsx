@@ -209,7 +209,7 @@ const SignLanguageTranslator = () => {
     
                     if (detectedGesture.score > 0.8) {
                         if (detectionBuffer.length === 0) {
-                            detectionStartTime = Date.now(); // Start timing when sign first appears
+                            detectionStartTime = Date.now(); 
                         }
     
                         detectionBuffer.push(detectedGesture.name);
