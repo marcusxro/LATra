@@ -51,6 +51,8 @@ import W_hand from "./Whand.svg"
 import X_hand from "./Xhand.svg"
 import Y_hand from "./Yhand.svg"
 import Z_hand from "./Zhand.svg"
+import { zSign } from "../handsigns/Zsign"
+
 
 export const Signimage: any = {
   A: A_sign,
@@ -80,6 +82,7 @@ export const Signimage: any = {
   Y: Y_sign,
   Z: Z_sign,
   Insert: Z_sign,
+  Repeat: zSign,
 }
 
 export const Signpass: any = [
@@ -190,5 +193,9 @@ export const Signpass: any = [
   {
     src: Z_hand,
     alt: "Insert",
+  },
+  {
+    src: zSign,
+    alt: "Repeat",
   },
 ]

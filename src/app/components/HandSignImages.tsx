@@ -40,6 +40,7 @@ const aslData = [
     { letter: 'Y', image: '/asl/y.png' },
     { letter: 'Z', image: '/asl/z.png' },
     { letter: 'Insert', image: '/asl/z.pn' },
+    { letter: 'Repeat', image: '/asl/z.pn' },
 ];
 
 const ASLHandGestureSelector = () => {

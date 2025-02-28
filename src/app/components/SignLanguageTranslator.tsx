@@ -138,7 +138,13 @@ const SignLanguageTranslator = () => {
     const [signArr, setSignArr] = useState<string[]>([]);
     const [currentGesture, setCurrentGesture] = useState(null);
     const [gestureCount, setGestureCount] = useState(0);
+    let detectionBuffer: string[] = [];
+    let detectionStartTime: number | null = null; // Track when a sign starts
+    const DETECTION_DURATION = 1500; // Require stable detection for 1.5s
+    
 
+    const [lastAddedLetter, setLastAddedLetter] = useState<string | null>(null);
+    const [canRepeat, setCanRepeat] = useState(false);
 
     async function detect(net: any) {
         if (gamestate === "started") {
@@ -198,30 +204,57 @@ const SignLanguageTranslator = () => {
 
                 if (estimatedGestures.gestures && estimatedGestures.gestures.length > 0) {
                     const confidence = estimatedGestures.gestures.map((p: any) => p.score);
-                    const maxConfidence = confidence.indexOf(Math.max(...confidence)); // Find highest score
-
-                    if (estimatedGestures.gestures[maxConfidence]) {
-                        const detectedGesture = estimatedGestures.gestures[maxConfidence];
-
-                        if (detectedGesture.score > 0.8) {
-                            debouncedSetGesture(detectedGesture.name);
+                    const maxConfidence = confidence.indexOf(Math.max(...confidence));
+                    const detectedGesture = estimatedGestures.gestures[maxConfidence];
+    
+                    if (detectedGesture.score > 0.8) {
+                        if (detectionBuffer.length === 0) {
+                            detectionStartTime = Date.now(); // Start timing when sign first appears
                         }
-
-                        setSign(detectedGesture.name);
-
-                    
-                        handleDetectedGesture(detectedGesture);
-                    } else {
-                        console.error("No gesture detected at maxConfidence index:", maxConfidence);
-                        setSign(""); // Reset sign if no gesture is confidently detected
-                        setGestureBuffer([]); // Clear gesture buffer
+    
+                        detectionBuffer.push(detectedGesture.name);
+    
+                        // Find most stable letter in buffer
+                        const mostStable = detectionBuffer.reduce((acc, letter) => {
+                            acc[letter] = (acc[letter] || 0) + 1;
+                            return acc;
+                        }, {} as Record<string, number>);
+    
+                        const stableLetter = Object.keys(mostStable).reduce((a, b) =>
+                            mostStable[a] > mostStable[b] ? a : b
+                        );
+    
+                        const timeHeld = Date.now() - (detectionStartTime ?? 0);
+    
+                        if (timeHeld >= DETECTION_DURATION) {
+                            if (stableLetter === "Repeat") {
+                                setCanRepeat(true);
+                                setSign("Repeat - Ready for new input");
+                                detectionBuffer = [];
+                                detectionStartTime = null;
+                            } else if (
+                                stableLetter !== lastAddedLetter || 
+                                canRepeat
+                            ) {
+                                if(stableLetter === "Space") {
+                                    setSignArr(prev => [...prev, " "]);
+                                    setLastAddedLetter(stableLetter);
+                                    setCanRepeat(false);
+                                    detectionBuffer = [];
+                                    detectionStartTime = null;
+                                } else {
+                                    setSignArr(prev => [...prev, stableLetter]);
+                                    setLastAddedLetter(stableLetter);
+                                    setCanRepeat(false);
+                                    detectionBuffer = [];
+                                    detectionStartTime = null;
+                                }
+                            }
+                            setSign(stableLetter);
+                        }
                     }
-                } else {
-                    console.log("No gestures detected.");
-                    setSign(""); // Reset sign
-                    setGestureBuffer([]); // Clear buffer to avoid stale gestures
                 }
-
+    
                 // Draw hand lines
                 const ctx = canvasRef.current.getContext("2d");
                 drawHand(hand, ctx);
@@ -232,23 +265,32 @@ const SignLanguageTranslator = () => {
             }
         }
     }
-
     const THRESHOLD = 5;
 
     // Function to handle detected gestures
     const handleDetectedGesture = (detectedGesture: any) => {
+        if (!detectedGesture || !detectedGesture.name) {
+            console.error("Invalid gesture detected:", detectedGesture);
+            return;
+        }
+    
         // If the detected gesture is the same as the current gesture, increment the count
         if (detectedGesture.name === currentGesture) {
             setGestureCount(prevCount => {
                 const newCount = prevCount + 1;
                 // If the gesture count exceeds the threshold, add it to the signArr
                 if (newCount >= THRESHOLD) {
+                    console.log("Gesture count exceeds threshold:", newCount);
+                    console.log("Detected gesture:", detectedGesture.name);
                     setSign(detectedGesture.name); // Update the displayed sign
                     setSignArr(prevArr => {
                         // Avoid adding the same gesture repeatedly
                         if (prevArr[prevArr.length - 1] !== detectedGesture.name) {
-                            return [...prevArr, detectedGesture.name];
+                            const newArr = [...prevArr, detectedGesture.name];
+                            console.log("Updated signArr:", newArr); // Debugging log
+                            return newArr;
                         }
+                        console.log("No update to signArr, same gesture detected:", detectedGesture.name); // Debugging log
                         return prevArr; // Return the previous array if the gesture is the same
                     });
                     return 0; // Reset the count after adding the gesture to the array
@@ -257,23 +299,21 @@ const SignLanguageTranslator = () => {
             });
         } else {
             // If a new gesture is detected, reset the count and update the current gesture
+            console.log("New gesture detected:", detectedGesture.name);
             setCurrentGesture(detectedGesture.name);
             setGestureCount(1);
         }
     };
     
-
-    // Stable sign calculation
-    const stableSign = useMemo(() => {
-        if (gestureBuffer.length === 0) return null;
-
-        const counts: Record<string, number> = {};
-        gestureBuffer.forEach((g) => {
-            counts[g] = (counts[g] || 0) + 1;
-        });
-
-        return Object.entries(counts).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
-    }, [gestureBuffer]);
+    // Debugging useEffect to track signArr changes
+    useEffect(() => {
+        console.log("Current signArr:", signArr);
+    }, [signArr]);
+    
+    // Debugging useEffect to track currentGesture and gestureCount changes
+    useEffect(() => {
+        console.log("Current Gesture:", currentGesture, "Gesture Count:", gestureCount);
+    }, [currentGesture, gestureCount]);
 
 
     useEffect(() => {
@@ -296,6 +336,11 @@ const SignLanguageTranslator = () => {
     const handlePopUp = () => {
         setIsPopUpOpen(!isPopUpOpen);
     }
+
+    useEffect(() => {
+        console.log("Current Gesture:", signArr);
+    }, [signArr]);
+
 
     return (
         <div className="flex flex-col gap-6 bg-white">
@@ -406,14 +451,17 @@ const SignLanguageTranslator = () => {
                                 <div className="h-full flex flex-col items-center justify-center text-gray-500 gap-3">
                                     <HandIcon className="h-12 w-12 text-gray-400" />
                                     {
-                                        signArr.length > 0 ?
+                                        signArr.length > 0 ? (
                                             <textarea
                                                 value={signArr.join(' ')}
-                                                className="w-full h-full bg-gray-100 p-2 rounded-lg">
-
-                                            </textarea>
-
-                                            : <p className="text-lg text-black">{isTranslating ? "Waiting for hand signs..." : "Translation will appear here"}</p>
+                                                className="w-full h-full bg-gray-100 p-2 rounded-lg"
+                                                readOnly // Add readOnly if the textarea should not be editable
+                                            />
+                                        ) : (
+                                            <p className="text-lg text-black">
+                                                {isTranslating ? "Waiting for hand signs..." : "Translation will appear here"}
+                                            </p>
+                                        )
                                     }
                                 </div>
                             )}
