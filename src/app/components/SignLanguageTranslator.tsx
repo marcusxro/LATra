@@ -15,7 +15,6 @@ import * as handpose from "@tensorflow-models/handpose"
 import { Signimage, Signpass } from "../components/handimage"
 import { drawHand } from "../components/handposeutil"
 import Metatags from "../components/metatags"
-
 import * as hands from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 
@@ -46,6 +45,8 @@ import '@tensorflow/tfjs-backend-webgl';
 import { aslDictionary, commonPhrases, initializeGestureRecognizer } from '../lib/static-data/oten';
 import ASLHandGestureSelector from './HandSignImages';
 import PopUp from './ui/popUp';
+import Language from './ui/Language';
+import Dictionary from './ui/Dictionary';
 
 const SignLanguageTranslator = () => {
     const [isTranslating, setIsTranslating] = useState(false);
@@ -141,7 +142,7 @@ const SignLanguageTranslator = () => {
     let detectionBuffer: string[] = [];
     let detectionStartTime: number | null = null; // Track when a sign starts
     const DETECTION_DURATION = 1500; // Require stable detection for 1.5s
-    
+
 
     const [lastAddedLetter, setLastAddedLetter] = useState<string | null>(null);
     const [canRepeat, setCanRepeat] = useState(false);
@@ -198,6 +199,7 @@ const SignLanguageTranslator = () => {
                     Handsigns.ySign,
                     Handsigns.zSign,
                     Handsigns.insertSign,
+                    Handsigns.deleteSign,
                 ]);
 
                 const estimatedGestures = await GE.estimate(hand[0].landmarks, 6.5);
@@ -206,26 +208,26 @@ const SignLanguageTranslator = () => {
                     const confidence = estimatedGestures.gestures.map((p: any) => p.score);
                     const maxConfidence = confidence.indexOf(Math.max(...confidence));
                     const detectedGesture = estimatedGestures.gestures[maxConfidence];
-    
+
                     if (detectedGesture.score > 0.8) {
                         if (detectionBuffer.length === 0) {
-                            detectionStartTime = Date.now(); 
+                            detectionStartTime = Date.now();
                         }
-    
+
                         detectionBuffer.push(detectedGesture.name);
-    
+
                         // Find most stable letter in buffer
                         const mostStable = detectionBuffer.reduce((acc, letter) => {
                             acc[letter] = (acc[letter] || 0) + 1;
                             return acc;
                         }, {} as Record<string, number>);
-    
+
                         const stableLetter = Object.keys(mostStable).reduce((a, b) =>
                             mostStable[a] > mostStable[b] ? a : b
                         );
-    
+
                         const timeHeld = Date.now() - (detectionStartTime ?? 0);
-    
+
                         if (timeHeld >= DETECTION_DURATION) {
                             if (stableLetter === "Repeat") {
                                 setCanRepeat(true);
@@ -233,10 +235,10 @@ const SignLanguageTranslator = () => {
                                 detectionBuffer = [];
                                 detectionStartTime = null;
                             } else if (
-                                stableLetter !== lastAddedLetter || 
+                                stableLetter !== lastAddedLetter ||
                                 canRepeat
                             ) {
-                                if(stableLetter === "Space") {
+                                if (stableLetter === "Space") {
                                     setSignArr(prev => [...prev, " "]);
                                     setLastAddedLetter(stableLetter);
                                     setCanRepeat(false);
@@ -254,7 +256,7 @@ const SignLanguageTranslator = () => {
                         }
                     }
                 }
-    
+
                 // Draw hand lines
                 const ctx = canvasRef.current.getContext("2d");
                 drawHand(hand, ctx);
@@ -273,7 +275,7 @@ const SignLanguageTranslator = () => {
             console.error("Invalid gesture detected:", detectedGesture);
             return;
         }
-    
+
         // If the detected gesture is the same as the current gesture, increment the count
         if (detectedGesture.name === currentGesture) {
             setGestureCount(prevCount => {
@@ -304,12 +306,12 @@ const SignLanguageTranslator = () => {
             setGestureCount(1);
         }
     };
-    
+
     // Debugging useEffect to track signArr changes
     useEffect(() => {
         console.log("Current signArr:", signArr);
     }, [signArr]);
-    
+
     // Debugging useEffect to track currentGesture and gestureCount changes
     useEffect(() => {
         console.log("Current Gesture:", currentGesture, "Gesture Count:", gestureCount);
@@ -337,17 +339,46 @@ const SignLanguageTranslator = () => {
         setIsPopUpOpen(!isPopUpOpen);
     }
 
-    useEffect(() => {
-        console.log("Current Gesture:", signArr);
-    }, [signArr]);
 
+    const speakText = (text: any) => {
+        if(text === "") {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; // Set language
+            utterance.rate = 1; // Speed (1 is normal)
+            utterance.pitch = 1; // Pitch (1 is normal)
 
+            speechSynthesis.speak(utterance);
+        }
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; // Set language
+            utterance.rate = 1; // Speed (1 is normal)
+            utterance.pitch = 1; // Pitch (1 is normal)
+
+            speechSynthesis.speak(utterance);
+        } else {
+            alert("Sorry, your browser does not support text-to-speech.");
+        }
+    };
+
+    const [showLanguage, setShowLanguage] = useState(false);
+
+    const handleLanguageShow = () => {
+        setShowLanguage(!showLanguage);
+    };
+
+    const [showDictionary, setShowDictionary] = useState(false);
+
+    const handleDictionaryShow = () => {
+        setShowDictionary(!showDictionary);
+    };
     return (
         <div className="flex flex-col gap-6 bg-white">
             {/* Camera component for hand sign detection */}
             <div id="app-title">
 
             </div>
+
 
             <div className='flex row-reverse gap-6'>
                 <div className='flex items-center justify-center flex-col gap-6  w-full max-w-[400px]'>
@@ -453,7 +484,7 @@ const SignLanguageTranslator = () => {
                                     {
                                         signArr.length > 0 ? (
                                             <textarea
-                                                value={signArr.join(' ')}
+                                                value={"AMBATUUKAM"}
                                                 className="w-full h-full bg-gray-100 p-2 rounded-lg"
                                                 readOnly // Add readOnly if the textarea should not be editable
                                             />
@@ -554,16 +585,22 @@ const SignLanguageTranslator = () => {
 
 
             {isPopUpOpen && <PopUp handlePopUp={handlePopUp} />}
+            {showLanguage && <Language handlePopUp={handleLanguageShow} />}
+            {showDictionary && <Dictionary handlePopUp={handleDictionaryShow} />}
 
             <div className='flex gap-5'>
-                <div className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
+                <div
+                    onClick={() => speakText(signArr.join(''))}
+                    className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
                     Speak
                 </div>
-                <div className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
+                <div
+                    onClick={() => setShowLanguage(true)}
+                 className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
                     Language
                 </div>
                 <div
-                    onClick={handlePopUp}
+                    onClick={() => setShowDictionary(true)}
                     className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
                     Dictionary
                 </div>

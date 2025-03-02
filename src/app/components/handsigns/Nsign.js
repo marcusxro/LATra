@@ -2,22 +2,22 @@ import { Finger, FingerCurl, FingerDirection, GestureDescription } from 'fingerp
 
 export const nSign = new GestureDescription('N');
 
-// Thumb
-nSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 1.0);
-nSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 0.70); // Adjusted to correct finger
+// Thumb: Slightly curled and tilted left
+nSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 1.2);
+nSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 1.2);
 
-// Index
-nSign.addCurl(Finger.Index, FingerCurl.FullCurl, 1);
-nSign.addDirection(Finger.Index, FingerDirection.VerticalUp, 0.70); // Consistent vertical direction
+// Index: Fully curled, **tilted left**
+nSign.addCurl(Finger.Index, FingerCurl.FullCurl, 1.2);
+nSign.addDirection(Finger.Index, FingerDirection.HorizontalLeft, 1.0);  // More distinct than M
 
-// Middle
-nSign.addCurl(Finger.Middle, FingerCurl.FullCurl, 1);
-nSign.addDirection(Finger.Middle, FingerDirection.VerticalUp, 0.70);
+// Middle: Fully curled, **tilted left**
+nSign.addCurl(Finger.Middle, FingerCurl.FullCurl, 1.2);
+nSign.addDirection(Finger.Middle, FingerDirection.HorizontalLeft, 1.0);
 
-// Ring
-nSign.addCurl(Finger.Ring, FingerCurl.FullCurl, 1);
-nSign.addDirection(Finger.Ring, FingerDirection.VerticalUp, 0.70);
+// Ring: Fully curled, **tilted left**
+nSign.addCurl(Finger.Ring, FingerCurl.FullCurl, 1.2);
+nSign.addDirection(Finger.Ring, FingerDirection.HorizontalLeft, 1.0);
 
-// Pinky
-nSign.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1);
-nSign.addDirection(Finger.Pinky, FingerDirection.DiagonalUpLeft, 0.70); // Kept consistent
+// Pinky: **Half curled to differentiate from M**
+nSign.addCurl(Finger.Pinky, FingerCurl.HalfCurl, 1.2);
+nSign.addDirection(Finger.Pinky, FingerDirection.DiagonalUpLeft, 1.0);

@@ -2,22 +2,20 @@ import { Finger, FingerCurl, FingerDirection, GestureDescription } from 'fingerp
 
 export const cSign = new GestureDescription('C');
 
-// Thumb
+// Thumb: Stays outward but slightly tilted
 cSign.addCurl(Finger.Thumb, FingerCurl.NoCurl, 1.0);
-cSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 0.70); // Adjusted for right hand
+cSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 1.0);
+cSign.addDirection(Finger.Thumb, FingerDirection.HorizontalLeft, 0.8);
 
-// Index
-cSign.addCurl(Finger.Index, FingerCurl.HalfCurl, 1);
-cSign.addDirection(Finger.Index, FingerDirection.DiagonalUpLeft, 0.70); // Adjusted for right hand
+// Fingers: Half Curl (More open than "O") + Tilt Left
+[Finger.Index, Finger.Middle, Finger.Ring, Finger.Pinky].forEach((finger) => {
+  cSign.addCurl(finger, FingerCurl.HalfCurl, 1.0); // More open
+  cSign.addCurl(finger, FingerCurl.NoCurl, 0.4); // Slight flexibility
+  cSign.addDirection(finger, FingerDirection.DiagonalUpLeft, 0.9); // Tilt left
+});
 
-// Middle
-cSign.addCurl(Finger.Middle, FingerCurl.HalfCurl, 1);
-cSign.addDirection(Finger.Middle, FingerDirection.DiagonalUpLeft, 0.70); // Adjusted for right hand
-
-// Ring
-cSign.addCurl(Finger.Ring, FingerCurl.HalfCurl, 1);
-cSign.addDirection(Finger.Ring, FingerDirection.DiagonalUpLeft, 0.70); // Adjusted for right hand
-
-// Pinky
-cSign.addCurl(Finger.Pinky, FingerCurl.HalfCurl, 1);
-cSign.addDirection(Finger.Pinky, FingerDirection.DiagonalUpLeft, 0.70); // Adjusted for right hand
+// Reduce Full Curl weight (Prevents it from looking like "O")
+cSign.addCurl(Finger.Index, FingerCurl.FullCurl, 0.2);
+cSign.addCurl(Finger.Middle, FingerCurl.FullCurl, 0.2);
+cSign.addCurl(Finger.Ring, FingerCurl.FullCurl, 0.2);
+cSign.addCurl(Finger.Pinky, FingerCurl.FullCurl, 0.2);
