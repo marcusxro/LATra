@@ -1,51 +1,25 @@
-import {Finger, FingerCurl, FingerDirection, GestureDescription} from 'fingerpose';
+import { Finger, FingerCurl, FingerDirection, GestureDescription } from "fingerpose";
 
-export const xSign = new GestureDescription('X');
-// [
-//     [
-//       "Thumb",
-//       "Half Curl",
-//       "Vertical Up"
-//     ],
-//     [
-//       "Index",
-//       "Half Curl",
-//       "Vertical Up"
-//     ],
-//     [
-//       "Middle",
-//       "Half Curl",
-//       "Vertical Up"
-//     ],
-//     [
-//       "Ring",
-//       "Full Curl",
-//       "Vertical Up"
-//     ],
-//     [
-//       "Pinky",
-//       "Full Curl",
-//       "Vertical Up"
-//     ]
-//   ]
+export const xSign = new GestureDescription("X");
 
-//Thumb
-xSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 1.0);
-xSign.addDirection(Finger.Index, FingerDirection.VerticalUp, 0.70);
+// ✅ Palm faces **RIGHT** (Allows minor rotation)
+xSign.addDirection(Finger.Index, FingerDirection.DiagonalUpRight, 0.9); // Rotated Right
+xSign.addDirection(Finger.Index, FingerDirection.VerticalUp, 0.6); // Some flexibility
 
-//Index
-xSign.addCurl(Finger.Index, FingerCurl.HalfCurl, 1);
-xSign.addDirection(Finger.Index, FingerDirection.VerticalUp, 0.70);
+// 👍 **Thumb** - Slightly curled, pointing **right**
+xSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 1);
+xSign.addDirection(Finger.Thumb, FingerDirection.HorizontalRight, 0.9);
+xSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpRight, 0.7);
 
-//Middle
-xSign.addCurl(Finger.Middle, FingerCurl.FullCurl, 1);
-xSign.addDirection(Finger.Middle, FingerDirection.VerticalUp, 0.70);
+// ☝️ **Index Finger** - **Bent at Tip**, relaxed
+xSign.addCurl(Finger.Index, FingerCurl.HalfCurl, 1); 
+xSign.addCurl(Finger.Index, FingerCurl.NoCurl, 0.7); // Allows slight variation
+xSign.addDirection(Finger.Index, FingerDirection.DiagonalUpRight, 0.9);
+xSign.addDirection(Finger.Index, FingerDirection.VerticalUp, 0.5); // Flexibility
 
-//Ring
-xSign.addCurl(Finger.Ring, FingerCurl.FullCurl, 1);
-xSign.addDirection(Finger.Ring, FingerDirection.VerticalUp, 0.70);
-
-//Pinky
-xSign.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1);
-xSign.addDirection(Finger.Pinky, FingerDirection.VerticalUp, 0.70);
-
+// ✊ **Other Fingers (Middle, Ring, Pinky)** - **Fully curled into palm**
+[Finger.Middle, Finger.Ring, Finger.Pinky].forEach(finger => {
+    xSign.addCurl(finger, FingerCurl.FullCurl, 1);
+    xSign.addDirection(finger, FingerDirection.HorizontalRight, 0.9);
+    xSign.addDirection(finger, FingerDirection.DiagonalUpRight, 0.6); // Slight palm rotation allowed
+});

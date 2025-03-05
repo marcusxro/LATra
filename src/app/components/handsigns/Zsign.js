@@ -1,51 +1,17 @@
-import {Finger, FingerCurl, FingerDirection, GestureDescription} from 'fingerpose';
+import { Finger, FingerCurl, FingerDirection, GestureDescription } from 'fingerpose';
 
 export const zSign = new GestureDescription('Z');
-// [
-//     [
-//       "Thumb",
-//       "No Curl",
-//       "Horizontal Left"
-//     ],
-//     [
-//       "Index",
-//       "No Curl",
-//       "Diagonal Up Left"
-//     ],
-//     [
-//       "Middle",
-//       "Full Curl",
-//       "Horizontal Left"
-//     ],
-//     [
-//       "Ring",
-//       "Full Curl",
-//       "Horizontal Left"
-//     ],
-//     [
-//       "Pinky",
-//       "Full Curl",
-//       "Horizontal Left"
-//     ]
-//   ]
 
-//Thumb
-zSign.addCurl(Finger.Thumb, FingerCurl.NoCurl, 0.8);
-zSign.addDirection(Finger.Index, FingerDirection.HorizontalLeft, 0.70);
+// Thumb - Natural position
+zSign.addCurl(Finger.Thumb, FingerCurl.NoCurl, 1);
+zSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 0.75);
 
-//Index
-zSign.addCurl(Finger.Index, FingerCurl.NoCurl, 1);
-zSign.addDirection(Finger.Index, FingerDirection.DiagonalUpLeft, 0.70);
+// Index Finger - **Partially curled and bent to the right**
+zSign.addCurl(Finger.Index, FingerCurl.HalfCurl, 1); // **Half curl to indicate bending**
+zSign.addDirection(Finger.Index, FingerDirection.HorizontalRight, 1); // **Bent toward the right smoothly**
 
-//Middle
-zSign.addCurl(Finger.Middle, FingerCurl.FullCurl, 1);
-zSign.addDirection(Finger.Middle, FingerDirection.HorizontalLeft, 0.70);
-
-//Ring
-zSign.addCurl(Finger.Ring, FingerCurl.FullCurl, 1);
-zSign.addDirection(Finger.Ring, FingerDirection.HorizontalLeft, 0.70);
-
-//Pinky
-zSign.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1);
-zSign.addDirection(Finger.Pinky, FingerDirection.HorizontalLeft, 0.70);
-
+// Middle, Ring, and Pinky - Fully curled (fist-like shape)
+[Finger.Middle, Finger.Ring, Finger.Pinky].forEach(finger => {
+    zSign.addCurl(finger, FingerCurl.FullCurl, 1);
+    zSign.addDirection(finger, FingerDirection.HorizontalLeft, 0.75);
+});

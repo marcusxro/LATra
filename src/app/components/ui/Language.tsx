@@ -16,7 +16,21 @@ const Language = ({ handlePopUp }: { handlePopUp: () => void }) => {
         setSelectedLang(language);
         localStorage.setItem("selectedLanguage", language);
         handlePopUp(); // Close the popup after selection
+
+        window.location.reload(); // Reload the page to apply the selected language
     };
+
+    
+    const [languageChosen, setlanguageChosen] = useState<String>("");
+
+
+
+    useEffect(() => {
+
+        setlanguageChosen(localStorage.getItem("selectedLanguage") || "English")
+
+        console.log("languageChosen", languageChosen)
+    }, [languageChosen])
 
     return (
         <div
@@ -27,7 +41,14 @@ const Language = ({ handlePopUp }: { handlePopUp: () => void }) => {
                 onClick={(e) => e.stopPropagation()}
                 className="bg-white rounded-lg p-6 shadow-lg w-80 text-center"
             >
-                <h1 className="text-2xl font-bold pb-5">Select Language</h1>
+                <h1 className="text-2xl font-bold pb-5">
+                    {
+                        languageChosen === "English" ?
+                         "Select Language"
+                        : "Pumili ng Wika"
+                        
+                    }
+                </h1>
 
                 <div className="space-y-3">
                     <button

@@ -9,17 +9,7 @@ import { HandMetal } from 'lucide-react';
 export default function Home() {
   const [detectionHistory, setDetectionHistory] = useState<string[]>(['H', 'E', 'L', 'L', 'O']);
 
-  /*  const clearHistory = () => {
-     setDetectionHistory([]);
-   };
- 
-   const copyToClipboard = () => {
-     navigator.clipboard.writeText(detectionHistory.join(''));
-   }; */
 
-  /*   const addDetection = (letter: string) => {
-      setDetectionHistory(prev => [...prev, letter]);
-    }; */
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -27,7 +17,7 @@ export default function Home() {
         <header className="flex h-16 items-center justify-between border-b border-gray-800">
           <div className="flex items-center space-x-2">
             <HandMetal className="h-6 w-6 text-blue-500" />
-            <h1 className="text-xl font-medium tracking-tight">SignSense</h1>
+            <h1 className="text-xl font-medium tracking-tight">LATra</h1>
           </div>
         </header>
 

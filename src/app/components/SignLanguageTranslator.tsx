@@ -19,7 +19,7 @@ import * as hands from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 
 
-import { debounce } from "lodash";
+import { camelCase, debounce } from "lodash";
 
 import {
     Clipboard,
@@ -47,6 +47,7 @@ import ASLHandGestureSelector from './HandSignImages';
 import PopUp from './ui/popUp';
 import Language from './ui/Language';
 import Dictionary from './ui/Dictionary';
+import SignConverter from './ui/SignConverter';
 
 const SignLanguageTranslator = () => {
     const [isTranslating, setIsTranslating] = useState(false);
@@ -167,10 +168,7 @@ const SignLanguageTranslator = () => {
             }
 
             const hand = await net.estimateHands(video);
-
             if (hand.length > 0) {
-                // console.log("Hand detected:", hand);
-
                 const GE = new fp.GestureEstimator([
                     Handsigns.aSign,
                     Handsigns.bSign,
@@ -199,11 +197,9 @@ const SignLanguageTranslator = () => {
                     Handsigns.ySign,
                     Handsigns.zSign,
                     Handsigns.insertSign,
-                    Handsigns.deleteSign,
                 ]);
 
                 const estimatedGestures = await GE.estimate(hand[0].landmarks, 6.5);
-
                 if (estimatedGestures.gestures && estimatedGestures.gestures.length > 0) {
                     const confidence = estimatedGestures.gestures.map((p: any) => p.score);
                     const maxConfidence = confidence.indexOf(Math.max(...confidence));
@@ -213,7 +209,6 @@ const SignLanguageTranslator = () => {
                         if (detectionBuffer.length === 0) {
                             detectionStartTime = Date.now();
                         }
-
                         detectionBuffer.push(detectedGesture.name);
 
                         // Find most stable letter in buffer
@@ -323,14 +318,9 @@ const SignLanguageTranslator = () => {
     }, [])
 
     function turnOffCamera() {
-        console.log("turnOffCamera")
-        if (camState === "on") {
-            setCamState("off")
-            setIsTranslating(false)
-        } else {
-            setCamState("on")
-            setIsTranslating(true)
-        }
+        setCamState((prevs) => {
+            return prevs === "on" ? "off" : "on"
+        })
     }
 
     const [isPopUpOpen, setIsPopUpOpen] = useState(false);
@@ -341,8 +331,8 @@ const SignLanguageTranslator = () => {
 
 
     const speakText = (text: any) => {
-        if(text === "") {
-            const utterance = new SpeechSynthesisUtterance(text);
+        if (text === "") {
+            const utterance = new SpeechSynthesisUtterance("No text to speak");
             utterance.lang = 'en-US'; // Set language
             utterance.rate = 1; // Speed (1 is normal)
             utterance.pitch = 1; // Pitch (1 is normal)
@@ -372,19 +362,42 @@ const SignLanguageTranslator = () => {
     const handleDictionaryShow = () => {
         setShowDictionary(!showDictionary);
     };
+
+    const [showSign, setShowSign] = useState(false);
+
+    const handleSignShow = () => {
+        setShowSign(!showSign);
+    };
+
+    const copyTextToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text)
+            .then(() => alert('Copied to clipboard!'))
+            .catch(err => console.error('Failed to copy:', err));
+    };
+
+
+    const [languageChosen, setlanguageChosen] = useState<String>("");
+
+
+
+    useEffect(() => {
+
+        setlanguageChosen(localStorage.getItem("selectedLanguage") || "English")
+
+        console.log("languageChosen", languageChosen)
+    }, [languageChosen])
+
+
+
     return (
         <div className="flex flex-col gap-6 bg-white">
-            {/* Camera component for hand sign detection */}
-            <div id="app-title">
-
-            </div>
 
 
             <div className='flex row-reverse gap-6'>
                 <div className='flex items-center justify-center flex-col gap-6  w-full max-w-[400px]'>
                     <div className="lg:col-span-1 overflow-hidden rounded-lg">
 
-                        {camState === "on" && isTranslating ? (
+                        {camState === "on" ? (
 
                             <Webcam id="webcam" ref={webcamRef} />
                         ) : (
@@ -418,9 +431,20 @@ const SignLanguageTranslator = () => {
                                     <MessageSquare className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-lg font-medium tracking-tight">Sign Language Translator</CardTitle>
+                                    <CardTitle className="text-lg font-medium tracking-tight">
+                                        {
+                                            languageChosen === "Filipino" ?
+                                                "Tagasalin ng Wika ng Senyas" : "Sign Language Translator "
+                                        }
+                                    </CardTitle>
                                     <CardDescription className="text-gray-400 text-sm">
-                                        Real-time ASL to Text Translation
+                                        {
+                                            languageChosen === "Filipino"
+                                                ? "Mabilisang Pagsasalin ng ASL sa Teksto"
+                                                : "Real-time ASL to Text Translation"
+                                        }
+
+
                                     </CardDescription>
                                 </div>
                             </div>
@@ -431,13 +455,14 @@ const SignLanguageTranslator = () => {
                                     : "border-gray-800"}`}
                             >
                                 <div className="flex items-center gap-2">
-                                    {isTranslating && (
+                                    {camState === "on" && (
                                         <span className="relative flex h-2 w-2">
                                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                                         </span>
                                     )}
-                                    {isTranslating ? "Active" : "Inactive"}
+                                    {languageChosen === "Filipino" ? (camState === "on" ? "Aktibo" : "Hindi Aktibo") : (camState === "on" ? "Active" : "Inactive")}
+
                                 </div>
                             </Badge>
                         </div>
@@ -481,26 +506,30 @@ const SignLanguageTranslator = () => {
                             ) : (
                                 <div className="h-full flex flex-col items-center justify-center text-gray-500 gap-3">
                                     <HandIcon className="h-12 w-12 text-gray-400" />
-                                    {
-                                        signArr.length > 0 ? (
-                                            <textarea
-                                                value={"AMBATUUKAM"}
-                                                className="w-full h-full bg-gray-100 p-2 rounded-lg"
-                                                readOnly // Add readOnly if the textarea should not be editable
-                                            />
-                                        ) : (
-                                            <p className="text-lg text-black">
-                                                {isTranslating ? "Waiting for hand signs..." : "Translation will appear here"}
-                                            </p>
-                                        )
-                                    }
+                                    <div className='h-full w-full max-h-[500px]'>
+                                        {
+                                            signArr.length > 0 ? (
+                                                <textarea
+                                                    value={signArr.join('')}
+                                                    className="w-full h-[270px] bg-gray-100 p-2 resize-none border outline-none rounded-lg"
+                                                    readOnly // Add readOnly if the textarea should not be editable
+                                                />
+                                            ) : (
+                                                <p className="text-lg text-black">
+                                                    {languageChosen === "Filipino"
+                                                        ? (isTranslating ? "Naghihintay ng senyas ng kamay..." : "Lalabas dito ang salin")
+                                                        : (isTranslating ? "Waiting for hand signs..." : "Translation will appear here")}
+
+                                                </p>
+                                            )
+                                        }
+                                    </div>
                                 </div>
                             )}
 
                             <Button
                                 variant="outline"
-                                // onClick={copyToClipboard}
-                                disabled={!currentSentence}
+                                onClick={() => copyTextToClipboard(signArr.join(''))}
                                 className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity border-gray-300 hover:bg-gray-200 bg-white text-black cursor-pointer"
                             >
                                 <Clipboard className="h-4 w-4 text-black" />
@@ -509,7 +538,6 @@ const SignLanguageTranslator = () => {
 
                         {/* Suggested phrases */}
                         <div className="space-y-3">
-                            <h3 className="text-sm font-medium text-black">Quick Phrases</h3>
                             <div className="flex flex-wrap gap-2">
                                 {suggestedPhrases.map((phrase, index) => (
                                     <Button
@@ -527,55 +555,46 @@ const SignLanguageTranslator = () => {
 
 
                         {/* Controls */}
-                        <div className="flex justify-between items-center bg-black/50 backdrop-blur-sm rounded-xl p-4 border border-gray-800">
+                        <div className="flex justify-between items-center bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-gray-800">
                             <div className="flex gap-4">
 
                                 <Button
                                     onClick={turnOffCamera}
                                     variant={isTranslating ? "destructive" : "outline"}
                                     className={!isTranslating
-                                        ? "border-blue-500/20 text-blue-500 hover:bg-blue-500/10"
-                                        : ""}
-                                // onClick={isTranslating ? stopTranslation : startTranslation}
-                                >
+                                        ? "bg-blue-500/20 text-white hover:bg-[#888]"
+                                        : ""} >
 
-
-                                    {isTranslating ? (
-                                        <><Pause className="h-4 w-4 mr-2 text-red-500" />Stop</>
+                                    {languageChosen === "Filipino" ? (
+                                        camState === "on" ? (
+                                            <><Pause className="h-4 w-4 mr-1 text-red-500" />Itigil</>
+                                        ) : (
+                                            <><Play className="h-4 w-4 mr-1 text-green-500" />Simulan</>
+                                        )
                                     ) : (
-                                        <><Play className="h-4 w-4 mr-2 text-green-500" />Start</>
+                                        camState === "on" ? (
+                                            <><Pause className="h-4 w-4 mr-1 text-red-500" />Stop</>
+                                        ) : (
+                                            <><Play className="h-4 w-4 mr-1 text-green-500" />Start</>
+                                        )
                                     )}
+
                                 </Button>
-                                {/* <Button
-                                variant="outline"
-                                onClick={resetTranslation}
-                                className="border-gray-800 hover:bg-gray-800"
-                            >
-                                <RotateCcw className="h-4 w-4 mr-2" />
-                                Reset
-                            </Button> */}
+
 
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <Switch
-                                        id="typing-effect"
-                                        checked={isTypingEffect}
-                                    // onCheckedChange={toggleTypingEffect}
-                                    />
-                                    <Label htmlFor="typing-effect" className="text-black text-sm">
-                                        Typing Effect
-                                    </Label>
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    // onClick={toggleMute}
-                                    className="text-black hover:text-gray-300"
-                                >
-                                    {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                                </Button>
 
+                                <div
+                                    onClick={() => speakText(signArr.join(''))}
+                                    className='bg-blue-500/20 p-2 text-white flex gap-2 border-[#ececec] rounded-lg transition duration-200 hover:bg-blue-500/30'>
+                                    {
+                                        languageChosen === "Filipino" ? "Pagsalita" : "Speak"
+                                    }
+                                    
+                                     <VolumeX className="h-5 w-5" />
+                                </div>
 
                             </div>
                         </div>
@@ -587,22 +606,37 @@ const SignLanguageTranslator = () => {
             {isPopUpOpen && <PopUp handlePopUp={handlePopUp} />}
             {showLanguage && <Language handlePopUp={handleLanguageShow} />}
             {showDictionary && <Dictionary handlePopUp={handleDictionaryShow} />}
+            {showSign && <SignConverter handlePopUp={handleSignShow} text={signArr.join("")} />}
 
             <div className='flex gap-5'>
-                <div
-                    onClick={() => speakText(signArr.join(''))}
-                    className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
-                    Speak
-                </div>
+
                 <div
                     onClick={() => setShowLanguage(true)}
-                 className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
-                    Language
+                    className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
+                    {
+                        languageChosen === "Filipino" ? "Wika" : "Language"
+                    }
                 </div>
                 <div
                     onClick={() => setShowDictionary(true)}
                     className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
-                    Dictionary
+                    {
+                        languageChosen === "Filipino" ? "Diksyunaryo" : "Dictionary"
+                    }
+                </div>
+                <div
+                    onClick={() => setShowSign(true)}
+                    className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
+                   {
+                        languageChosen === "Filipino" ? "Salin" : "Translate"
+                   }
+                </div>
+                <div
+                    onClick={() => setSignArr([])}
+                    className='bg-blue-500/20 p-2 rounded-lg transition duration-200 hover:bg-blue-500/30'>
+                   {
+                        languageChosen === "Filipino" ? "Burahin" : "Clear"
+                   }
                 </div>
             </div>
         </div>

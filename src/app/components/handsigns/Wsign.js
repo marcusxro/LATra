@@ -2,22 +2,28 @@ import { Finger, FingerCurl, FingerDirection, GestureDescription } from 'fingerp
 
 export const wSign = new GestureDescription('W');
 
-// Thumb
-wSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 1.0);  // Slightly curled thumb
-wSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpLeft, 0.7); // Thumb pointing diagonally up-left
+// 👍 Thumb - Relaxed curl, diagonal right
+wSign.addCurl(Finger.Thumb, FingerCurl.HalfCurl, 0.9); // More flexible
+wSign.addDirection(Finger.Thumb, FingerDirection.DiagonalUpRight, 0.8);
+wSign.addDirection(Finger.Thumb, FingerDirection.HorizontalRight, 0.6); // Extra allowance
 
-// Index
-wSign.addCurl(Finger.Index, FingerCurl.NoCurl, 1.0); // Index finger fully extended
-wSign.addDirection(Finger.Index, FingerDirection.DiagonalUpRight, 0.7); // Index pointing diagonally up-right
+// ☝️ Index - Fully extended, tilting right
+wSign.addCurl(Finger.Index, FingerCurl.NoCurl, 1.0);
+wSign.addDirection(Finger.Index, FingerDirection.DiagonalUpRight, 0.9);
+wSign.addDirection(Finger.Index, FingerDirection.VerticalUp, 0.6); // Extra flexibility
 
-// Middle
-wSign.addCurl(Finger.Middle, FingerCurl.NoCurl, 1.0); // Middle finger fully extended
-wSign.addDirection(Finger.Middle, FingerDirection.VerticalUp, 0.7); // Middle pointing vertically up
+// ✌️ Middle - Fully extended, slight right tilt
+wSign.addCurl(Finger.Middle, FingerCurl.NoCurl, 1.0);
+wSign.addDirection(Finger.Middle, FingerDirection.DiagonalUpRight, 0.9);
+wSign.addDirection(Finger.Middle, FingerDirection.VerticalUp, 0.6); // Extra flexibility
 
-// Ring
-wSign.addCurl(Finger.Ring, FingerCurl.NoCurl, 1.0); // Ring finger fully extended
-wSign.addDirection(Finger.Ring, FingerDirection.DiagonalUpLeft, 0.7); // Ring pointing diagonally up-left
+// 🖖 Ring - Fully extended, allowing a slight right tilt
+wSign.addCurl(Finger.Ring, FingerCurl.NoCurl, 1.0);
+wSign.addDirection(Finger.Ring, FingerDirection.DiagonalUpRight, 0.9);
+wSign.addDirection(Finger.Ring, FingerDirection.VerticalUp, 0.6);
 
-// Pinky
-wSign.addCurl(Finger.Pinky, FingerCurl.FullCurl, 1.0); // Pinky fully curled
-wSign.addDirection(Finger.Pinky, FingerDirection.DiagonalUpLeft, 0.7); // Pinky pointing diagonally up-left
+// 🐸 Pinky - Slightly bent, allows more variations
+wSign.addCurl(Finger.Pinky, FingerCurl.HalfCurl, 0.8);
+wSign.addCurl(Finger.Pinky, FingerCurl.NoCurl, 0.6); // Allows flexibility
+wSign.addDirection(Finger.Pinky, FingerDirection.DiagonalUpRight, 0.7);
+wSign.addDirection(Finger.Pinky, FingerDirection.HorizontalRight, 0.5); // Extra allowance

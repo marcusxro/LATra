@@ -18,6 +18,17 @@ const Dictionary = ({ handlePopUp }: { handlePopUp: () => void }) => {
         handlePopUp(); // Close the popup after selection
     };
 
+
+    const [languageChosen, setlanguageChosen] = useState<String>("");
+
+
+    useEffect(() => {
+
+        setlanguageChosen(localStorage.getItem("selectedLanguage") || "English")
+
+        console.log("languageChosen", languageChosen)
+    }, [languageChosen])
+
     return (
         <div
             onClick={handlePopUp}
@@ -27,7 +38,13 @@ const Dictionary = ({ handlePopUp }: { handlePopUp: () => void }) => {
                 onClick={(e) => e.stopPropagation()}
                 className="bg-white rounded-lg p-6 shadow-lg w-80 text-center"
             >
-                <h1 className="text-2xl font-bold pb-5">Dictionary</h1>
+                <h1 className="text-2xl font-bold pb-5">
+                    {
+                        languageChosen === "English" ?
+                            "Dictionary"
+                            : "Diksyunaryo"
+                    }
+                </h1>
 
         <div >
             <img src={DictionaryPic.src} alt="" />
