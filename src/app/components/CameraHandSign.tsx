@@ -26,9 +26,6 @@ const CameraHandSignComponent: React.FC<CameraHandSignProps> = ({ onDetection })
     const [model, setModel] = useState<handpose.HandPose | null>(null);
     const [detectedLetter, setDetectedLetter] = useState<string | null>(null);
     const [isDetecting, setIsDetecting] = useState(false);
-    const [detectionHistory, setDetectionHistory] = useState<string[]>([]);
-    const [detectionBuffer, setDetectionBuffer] = useState<string[]>([]);
-    const [lastStableDetection, setLastStableDetection] = useState<string | null>(null);
 
 
 

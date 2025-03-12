@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import * as fp from "fingerpose"
 import Handsigns from "../components/handsigns"
 import Webcam from "react-webcam";
-import * as tf from "@tensorflow/tfjs"
 import * as handpose from "@tensorflow-models/handpose"
 
 import { Signpass } from "../components/handimage"

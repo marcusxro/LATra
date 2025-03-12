@@ -1,22 +1,6 @@
 import { useState, useEffect } from "react";
 import DictionaryPic from '../../assets/dictionary.png'
 const Dictionary = ({ handlePopUp }: { handlePopUp: () => void }) => {
-    const [selectedLang, setSelectedLang] = useState<string | null>(null);
-
-    // Load saved language from localStorage
-    useEffect(() => {
-        const savedLang = localStorage.getItem("selectedLanguage");
-        if (savedLang) {
-            setSelectedLang(savedLang);
-        }
-    }, []);
-
-    // Function to handle language selection
-    const handleLanguageSelect = (language: string) => {
-        setSelectedLang(language);
-        localStorage.setItem("selectedLanguage", language);
-        handlePopUp(); // Close the popup after selection
-    };
 
 
     const [languageChosen, setlanguageChosen] = useState<String>("");
