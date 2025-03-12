@@ -6,7 +6,7 @@ interface SignConverterProps {
     text: string;
 }
 
-const SignConverter: React.FC<SignConverterProps> = ({ handlePopUp, text }) => {
+const SignConverter: React.FC<SignConverterProps> = ({ handlePopUp }) => {
 
 
     const [textAreaVal, setTextAreaVal] = useState<string>("");

@@ -534,7 +534,7 @@ const SignLanguageTranslator = () => {
             {isPopUpOpen && <PopUp handlePopUp={handlePopUp} />}
             {showLanguage && <Language handlePopUp={handleLanguageShow} />}
             {showDictionary && <Dictionary handlePopUp={handleDictionaryShow} />}
-            {showSign && <SignConverter handlePopUp={handleSignShow}  />}
+            {showSign && <SignConverter handlePopUp={handleSignShow} text={signArr.join("")} />}
 
             <div className='flex gap-5'>
 
