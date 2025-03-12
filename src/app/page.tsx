@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 
-import CameraHandSignComponent from './components/CameraHandSign';
 import SignLanguageTranslator from './components/SignLanguageTranslator';
 import { HandMetal } from 'lucide-react';
 

@@ -3,20 +3,14 @@
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Label } from '../components/ui/label';
-import { Separator } from '../components/ui/separator';
-import { Switch } from '../components/ui/switch';
 import * as fp from "fingerpose"
 import Handsigns from "../components/handsigns"
 import Webcam from "react-webcam";
 import * as tf from "@tensorflow/tfjs"
 import * as handpose from "@tensorflow-models/handpose"
 
-import { Signimage, Signpass } from "../components/handimage"
+import { Signpass } from "../components/handimage"
 import { drawHand } from "../components/handposeutil"
-import Metatags from "../components/metatags"
-import * as hands from "@mediapipe/hands";
-import { Camera } from "@mediapipe/camera_utils";
 
 
 import { camelCase, debounce } from "lodash";
@@ -27,46 +21,30 @@ import {
     MessageSquare,
     Pause,
     Play,
-    RotateCcw,
-    Volume2,
     VolumeX
 } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import CameraHandSignComponent from './CameraHandSign';
+import { useEffect, useRef, useState } from 'react';
 
-interface TranslationWord {
-    word: string;
-    timestamp: number;
-    confidence: number;
-}
 
 
 import '@tensorflow/tfjs-backend-webgl';
-import { aslDictionary, commonPhrases, initializeGestureRecognizer } from '../lib/static-data/oten';
-import ASLHandGestureSelector from './HandSignImages';
+
 import PopUp from './ui/popUp';
 import Language from './ui/Language';
 import Dictionary from './ui/Dictionary';
 import SignConverter from './ui/SignConverter';
 
 const SignLanguageTranslator = () => {
-    const [isTranslating, setIsTranslating] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
-    const [currentSentence, setCurrentSentence] = useState<string>('');
-    const [translationHistory, setTranslationHistory] = useState<TranslationWord[]>([]);
-    const [isTypingEffect, setIsTypingEffect] = useState(true);
-    const [currentWord, setCurrentWord] = useState<string>('');
-    const [letterSequence, setLetterSequence] = useState<string>('');
-    const [lastDetectedLetter, setLastDetectedLetter] = useState<string | null>(null);
-    const [idleTimer, setIdleTimer] = useState<NodeJS.Timeout | null>(null);
-    const [wordTimeout, setWordTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [isTranslating] = useState(false);
+    const [currentSentence] = useState<string>('');
+    const [isTypingEffect] = useState(true);
+    const [currentWord] = useState<string>('');
+    const [lastDetectedLetter, _] = useState<string | null>(null);
     const translationRef = useRef<HTMLDivElement>(null);
     const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-    // NEW: Add confidence threshold state
-    const [confidenceThreshold, setConfenceThreshold] = useState<number>(8.0);
-    // NEW: Add suggested phrases based on context
-    const [suggestedPhrases, setSuggestedPhrases] = useState<string[]>([]);
+
+    const [suggestedPhrases] = useState<string[]>([]);
 
     // Initialize speech synthesis
     useEffect(() => {
@@ -97,9 +75,8 @@ const SignLanguageTranslator = () => {
     const [sign, setSign] = useState<any>(null)
 
     let signList: any[] = []
-    let currentSign = 0
 
-    let gamestate = "started"
+     let gamestate = "started"
 
     // let net;
 
@@ -131,15 +108,10 @@ const SignLanguageTranslator = () => {
         return password
     }
 
-    const [gestureBuffer, setGestureBuffer] = useState<string[]>([]);
-    const bufferSize = 5; // Adjust to smooth more or less
 
-    const debouncedSetGesture = debounce((newSign: string) => {
-        setGestureBuffer((prev) => [...prev, newSign].slice(-bufferSize)); // Keep last N gestures
-    }, 200); // Adjust debounce time as needed
     const [signArr, setSignArr] = useState<string[]>([]);
-    const [currentGesture, setCurrentGesture] = useState(null);
-    const [gestureCount, setGestureCount] = useState(0);
+    const [currentGesture] = useState(null);
+    const [gestureCount] = useState(0);
     let detectionBuffer: string[] = [];
     let detectionStartTime: number | null = null; // Track when a sign starts
     const DETECTION_DURATION = 1500; // Require stable detection for 1.5s
@@ -258,51 +230,11 @@ const SignLanguageTranslator = () => {
             } else {
                 console.log("No hand detected.");
                 setSign(""); // Reset sign when no hand is found
-                setGestureBuffer([]); // Clear buffer to prevent ghost gestures
             }
         }
     }
-    const THRESHOLD = 5;
 
-    // Function to handle detected gestures
-    const handleDetectedGesture = (detectedGesture: any) => {
-        if (!detectedGesture || !detectedGesture.name) {
-            console.error("Invalid gesture detected:", detectedGesture);
-            return;
-        }
 
-        // If the detected gesture is the same as the current gesture, increment the count
-        if (detectedGesture.name === currentGesture) {
-            setGestureCount(prevCount => {
-                const newCount = prevCount + 1;
-                // If the gesture count exceeds the threshold, add it to the signArr
-                if (newCount >= THRESHOLD) {
-                    console.log("Gesture count exceeds threshold:", newCount);
-                    console.log("Detected gesture:", detectedGesture.name);
-                    setSign(detectedGesture.name); // Update the displayed sign
-                    setSignArr(prevArr => {
-                        // Avoid adding the same gesture repeatedly
-                        if (prevArr[prevArr.length - 1] !== detectedGesture.name) {
-                            const newArr = [...prevArr, detectedGesture.name];
-                            console.log("Updated signArr:", newArr); // Debugging log
-                            return newArr;
-                        }
-                        console.log("No update to signArr, same gesture detected:", detectedGesture.name); // Debugging log
-                        return prevArr; // Return the previous array if the gesture is the same
-                    });
-                    return 0; // Reset the count after adding the gesture to the array
-                }
-                return newCount;
-            });
-        } else {
-            // If a new gesture is detected, reset the count and update the current gesture
-            console.log("New gesture detected:", detectedGesture.name);
-            setCurrentGesture(detectedGesture.name);
-            setGestureCount(1);
-        }
-    };
-
-    // Debugging useEffect to track signArr changes
     useEffect(() => {
         console.log("Current signArr:", signArr);
     }, [signArr]);

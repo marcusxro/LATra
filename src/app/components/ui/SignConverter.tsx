@@ -52,8 +52,8 @@ const SignConverter: React.FC<SignConverterProps> = ({ handlePopUp, text }) => {
                                 const imgSrc = Signimage[letter.toUpperCase()];
 
                                 if (letter === " ") {
-                                    // Render a space with margin for visibility
-                                    return <div key={i} className="w-4"></div>;
+                         
+                                    return <div key={i} className="w-9"></div>; //baguhin nyo value ng 4 kung gusto nyo mas malaki or mas maliit (max 9)
                                 }
 
                                 return (
