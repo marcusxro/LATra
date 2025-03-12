@@ -11,9 +11,6 @@ import * as handpose from "@tensorflow-models/handpose"
 import { Signpass } from "../components/handimage"
 import { drawHand } from "../components/handposeutil"
 
-
-import { camelCase, debounce } from "lodash";
-
 import {
     Clipboard,
     HandIcon,
@@ -537,7 +534,7 @@ const SignLanguageTranslator = () => {
             {isPopUpOpen && <PopUp handlePopUp={handlePopUp} />}
             {showLanguage && <Language handlePopUp={handleLanguageShow} />}
             {showDictionary && <Dictionary handlePopUp={handleDictionaryShow} />}
-            {showSign && <SignConverter handlePopUp={handleSignShow} text={signArr.join("")} />}
+            {showSign && <SignConverter handlePopUp={handleSignShow}  />}
 
             <div className='flex gap-5'>
 

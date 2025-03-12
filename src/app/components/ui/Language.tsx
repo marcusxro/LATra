@@ -21,7 +21,7 @@ const Language = ({ handlePopUp }: { handlePopUp: () => void }) => {
     };
 
     
-    const [languageChosen, setlanguageChosen] = useState<String>("");
+    const [languageChosen, setlanguageChosen] = useState<any>("");
 
 
 

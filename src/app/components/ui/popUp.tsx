@@ -1,10 +1,8 @@
 import { Signpass } from '../handimage/index'
 import AHand from '../../components/handimage/Ahand.svg'
 
-const PopUp = ({ handlePopUp }: { handlePopUp: () => void }) => {
-    console.log(Signpass);
-
-    console.log(AHand);
+const PopUp = ({ handlePopUp }: { handlePopUp: () => any }) => {
+ 
     return (
         <div
             onClick={handlePopUp}
